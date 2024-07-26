@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: Payment Integration API
+  version: 1.0.0
+  description: API for handling Stripe payments
+servers:
+  - url: http://localhost:8000/api/v1/payment
+paths:
+  /create-payment-intent:
+    post:
+      summary: Create a Stripe Payment Intent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  description: Amount to charge in cents
+                currency:
+                  type: string
+                  description: Currency code
+              required:
+                - amount
+                - currency
+      responses:
+        '200':
+          description: Payment Intent created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clientSecret:
+                    type: string
+                    description: The client secret of the Payment Intent
+  /webhook:
+    post:
+      summary: Stripe Webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Webhook handled successfully
