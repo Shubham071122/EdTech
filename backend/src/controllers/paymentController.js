@@ -34,8 +34,8 @@ const processPayPalPayment = async (req, res) => {
       {
         intent: 'sale',
         redirect_urls: {
-          return_url: `${process.env.SERVER_URL}/success`,
-          cancel_url: `${process.env.SERVER_URL}/cancel`,
+          return_url: `${process.env.SERVER_URL}/api/v1/success`,
+          cancel_url: `${process.env.SERVER_URL}/ap1/v1/cancel`,
         },
         payer: {
           payment_method: 'paypal',
