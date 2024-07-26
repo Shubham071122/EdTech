@@ -30,7 +30,7 @@ app.listen(process.env.PORT || 8000, () => {
 });
 
 app.get('/', (req, res) => {
-  res.send('wlcome to streamify');
+  res.send('wlcome to Edtech');
 });
 
 //Routes import
