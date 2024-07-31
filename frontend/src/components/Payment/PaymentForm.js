@@ -3,9 +3,11 @@ import axios from 'axios';
 
 const PaymentForm = ({ getDiscountAmt }) => {
   const [couponCode, setCouponCode] = useState('');
+  const [applied,setApplied] = useState(false);
 
   const handleCouponCodeChange = (e) => {
     setCouponCode(e.target.value);
+    setApplied(false);
   };
 
   const handleApplyCoupon = async () => {
@@ -16,6 +18,7 @@ const PaymentForm = ({ getDiscountAmt }) => {
       );
       if (response.data) {
         getDiscountAmt(response.data.discount);
+        setApplied(true);
         alert('✅ Token Applied!');
       } else {
         alert('⚠️ Invalid token!', response.message);
@@ -37,9 +40,12 @@ const PaymentForm = ({ getDiscountAmt }) => {
       />
       <button
         onClick={handleApplyCoupon}
-        className="ml-2 px-2 py-1 bg-blue-500 text-white rounded-md"
+        className="ml-2 px-2 py-1 bg-yellow-500 text-white rounded-md mt-4 sm:mt-0"
+        disabled={applied}
       >
-        Apply Coupon
+        {
+          applied ? 'Coupon Applied 🎉' : 'Apply Coupon'
+        }
       </button>
     </div>
   );
