@@ -19,6 +19,7 @@ export const initiateStripePayment = async (amount) => {
       `${process.env.REACT_APP_SERVER_URL}/payment/stripe`,
       { amount },
     );
+    console.log("stres:",response);
     if (response.status === 200) {
       window.location.href = response.data.url;
     }

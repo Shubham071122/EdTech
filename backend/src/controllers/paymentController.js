@@ -1,6 +1,8 @@
 const axios = require('axios');
 const stripe = require('stripe')(`${process.env.STRIPE_SECRET_KEY}`);
 const paypal = require('paypal-rest-sdk');
+const { db } = require('../config/firebaseConfig.js');  
+const { collection, query, where, getDocs } = require('firebase/firestore');
 
 paypal.configure({
   mode: 'sandbox',
@@ -73,6 +75,7 @@ const processPayPalPayment = async (req, res) => {
 const paymentSuccess = async (req, res) => {
   console.log('req:', req.query);
   const { paymentId, PayerID } = req.query;
+  const paidAmount = localStorage.getItem('paymentAmount');
   try {
     const execute_payment_json = {
       payer_id: PayerID,
@@ -80,7 +83,7 @@ const paymentSuccess = async (req, res) => {
         {
           amount: {
             currency: 'USD',
-            total: '50.00',
+            total: paidAmount,
           },
           description: 'This is teh payment description',
         },
@@ -110,20 +113,28 @@ const paymentSuccess = async (req, res) => {
 
 const processStripePayment = async (req, res) => {
   const { amount } = req.body;
-  const product = await stripe.products.create({
-    name: 'Book',
-  });
-  if (product) {
-    var price = await stripe.prices.create({
-      product: `${product.id}`,
-      unit_amount: amount * 100,
-      currency: 'USD',
-    });
+
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
   }
 
-  if (price.id) {
+  try {
+    const product = await stripe.products.create({
+      name: 'Book',
+    });
+
+    const price = await stripe.prices.create({
+      product: product.id,
+      unit_amount: amount * 100, 
+      currency: 'USD',
+    });
+
     const session = await stripe.checkout.sessions.create({
-      line_items: [{ price: price.id, quantity: 1 }],
+      payment_method_types: ['card'],
+      line_items: [{
+        price: price.id,
+        quantity: 1,
+      }],
       mode: 'payment',
       success_url: `${process.env.CLIENT_URL}/payment-success`,
       cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
@@ -131,7 +142,34 @@ const processStripePayment = async (req, res) => {
     });
 
     res.json({ url: session.url });
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-module.exports = { processPayPalPayment, processStripePayment, paymentSuccess };
+const validateCoupon = async (req, res) => {
+  const { couponCode } = req.body;
+
+  try {
+    const q = query(collection(db, 'coupons'), where('code', '==', couponCode));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return res.status(400).json({ message: 'Invalid or expired coupon code' });
+    }
+
+    const couponDoc = querySnapshot.docs[0];
+    if (!couponDoc.data().valid) {
+      return res.status(400).json({ message: 'Invalid or expired coupon code' });
+    }
+
+    const discount = couponDoc.data().discount;
+    return res.status(200).json({ discount });
+  } catch (error) {
+    console.error('Error validating coupon code:', error);
+    res.status(500).send('Server error');
+  }
+};
+
+module.exports = { processPayPalPayment, processStripePayment, paymentSuccess,validateCoupon };

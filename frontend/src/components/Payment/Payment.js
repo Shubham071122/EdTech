@@ -5,9 +5,15 @@ import {
 } from './PaymentFunction.js';
 import { GrPaypal } from 'react-icons/gr';
 import { BsStripe } from 'react-icons/bs';
+import PaymentForm from './PaymentForm.js';
 
 const PaymentPage = () => {
-  const [amount] = useState(50);
+  const [amount,setAmount] = useState(50);
+
+  const getDiscountAmt = (discount) => {
+    const discountedAmount = amount * (1 - discount / 100);
+    setAmount(discountedAmount);
+  }
 
   const handlePayPalClick = async () => {
     localStorage.setItem('paymentAmount', amount);
@@ -25,6 +31,7 @@ const PaymentPage = () => {
       <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
         <p className="text-gray-700 mb-4">Total Amount: ${amount}</p>
         <div className="flex flex-col space-y-4">
+          <PaymentForm getDiscountAmt={getDiscountAmt}/>
           {/* PayPal Button */}
           <button
             onClick={handlePayPalClick}
