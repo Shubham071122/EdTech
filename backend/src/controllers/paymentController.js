@@ -29,7 +29,7 @@ const processPayPalPayment = async (req, res) => {
     );
 
     const accessToken = tokenResponse.data.access_token;
-    console.log('ac:', accessToken);
+    // console.log('ac:', accessToken);
 
     const paymentResponse = await axios.post(
       'https://api.sandbox.paypal.com/v1/payments/payment',
@@ -75,15 +75,15 @@ const processPayPalPayment = async (req, res) => {
 const paymentSuccess = async (req, res) => {
   console.log('req:', req.query);
   const { paymentId, PayerID } = req.query;
-  const paidAmount = localStorage.getItem('paymentAmount');
   try {
+
     const execute_payment_json = {
       payer_id: PayerID,
       transactions: [
         {
           amount: {
             currency: 'USD',
-            total: paidAmount,
+            total: '45.00',
           },
           description: 'This is teh payment description',
         },
