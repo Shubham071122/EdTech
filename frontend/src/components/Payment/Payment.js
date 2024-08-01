@@ -8,7 +8,7 @@ import { BsStripe } from 'react-icons/bs';
 import PaymentForm from './PaymentForm.js';
 
 const PaymentPage = () => {
-  const [amount,setAmount] = useState(50);
+  const [amount,setAmount] = useState(1);
 
   const getDiscountAmt = (discount) => {
     const discountedAmount = amount * (1 - discount / 100);

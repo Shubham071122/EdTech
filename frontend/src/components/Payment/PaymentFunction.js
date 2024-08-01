@@ -3,6 +3,7 @@ import axios from 'axios';
 export const initiatePayPalPayment = async (amount) => {
   try {
     const email = localStorage.getItem('email');
+    console.log("e:",process.env.REACT_APP_SERVER_URL)
     await axios
       .post(`${process.env.REACT_APP_SERVER_URL}/payment/paypal`, { email,amount })
       .then((res) => {
