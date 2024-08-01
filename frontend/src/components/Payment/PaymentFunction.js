@@ -2,8 +2,9 @@ import axios from 'axios';
 
 export const initiatePayPalPayment = async (amount) => {
   try {
+    const email = localStorage.getItem('email');
     await axios
-      .post(`${process.env.REACT_APP_SERVER_URL}/payment/paypal`, { amount })
+      .post(`${process.env.REACT_APP_SERVER_URL}/payment/paypal`, { email,amount })
       .then((res) => {
         console.log('res:', res);
         window.location.href = res.data.approvalUrl;

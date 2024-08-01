@@ -3,6 +3,7 @@ const stripe = require('stripe')(`${process.env.STRIPE_SECRET_KEY}`);
 const paypal = require('paypal-rest-sdk');
 const { db } = require('../config/firebaseConfig.js');  
 const { collection, query, where, getDocs } = require('firebase/firestore');
+const {sendPaymentSuccessEmail} = require('../controllers/emailService.js');
 
 paypal.configure({
   mode: 'sandbox',
@@ -11,10 +12,12 @@ paypal.configure({
 });
 
 const processPayPalPayment = async (req, res) => {
-  const { amount } = req.body;
+  const { email,amount } = req.body;
   const clientId = process.env.PAYPAL_CLIENT_ID;
   const secret = process.env.PAYPAL_SECRET_KEY;
   const auth = Buffer.from(`${clientId}:${secret}`).toString('base64');
+
+  console.log("ath:,",auth);
 
   try {
     const tokenResponse = await axios.post(
@@ -27,6 +30,8 @@ const processPayPalPayment = async (req, res) => {
         },
       },
     );
+
+    console.log("tk:",tokenResponse);
 
     const accessToken = tokenResponse.data.access_token;
     // console.log('ac:', accessToken);
@@ -63,6 +68,8 @@ const processPayPalPayment = async (req, res) => {
       (link) => link.rel === 'approval_url',
     ).href;
     res.json({ approvalUrl });
+    // Send payment success email
+    await sendPaymentSuccessEmail(email, amount);
   } catch (error) {
     console.error(
       'PayPal Payment Error:',

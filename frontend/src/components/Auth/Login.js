@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{axios} from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import AuthForm from './AuthForm';
@@ -13,6 +13,9 @@ const Login = () => {
       console.log('response:', response);
       const token = response.user.accessToken;
       localStorage.setItem('token', token);
+      const Email = email;
+        localStorage.setItem('email',Email);
+      
       navigate('/dashboard');
     } catch (error) {
       console.error('Error logging in:', error);

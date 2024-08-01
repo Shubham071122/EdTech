@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{axios} from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import AuthForm from './AuthForm';
